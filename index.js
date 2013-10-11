@@ -26,7 +26,7 @@ mongooseRedisCache = function(mongoose, options, callback) {
     }
 
     client.on("connect", function () {
-      console.log('Succesfully connected to Redis!')
+      //console.log('Succesfully connected to Redis!')
     });
 
     // override default mongoose select query
@@ -34,7 +34,7 @@ mongooseRedisCache = function(mongoose, options, callback) {
 
     // skip caching if redis dies
     client.on("error", function (err) {
-      console.log("Warning: Redis connection died." + err);
+      //console.log("Warning: Redis connection died." + err);
 
       // close dead connection
       client.end();
@@ -42,10 +42,10 @@ mongooseRedisCache = function(mongoose, options, callback) {
       // restore original mongoose find method
       mongoose.Query.prototype.execFind = mongoose.Query.prototype._execFind;
 
-      console.log('Retry Redis connection in 5 seconds...');
+      //console.log('Retry Redis connection in 5 seconds...');
 
       setTimeout(function() {
-        console.log('Reconnecting to Redis...');
+        //console.log('Reconnecting to Redis...');
         connectToRedis();
       }, 5000);
 
@@ -74,7 +74,7 @@ mongooseRedisCache = function(mongoose, options, callback) {
           return callback(err);
         }
         if (!result) {
-          console.log('Redis result not found... looking up in mongo.');
+          //console.log('Redis result not found... looking up in mongo.');
           return mongoose.Query.prototype._execFind.call(self, function(err, docs) {
             var str;
             if (err) {
@@ -86,7 +86,7 @@ mongooseRedisCache = function(mongoose, options, callback) {
             return callback(null, docs);
           });
         } else {
-          console.log('Redis result found. Returning from cache.');
+          //console.log('Redis result found. Returning from cache.');
           docs = JSON.parse(result);
           return callback(null, docs);
         }
