@@ -67,8 +67,12 @@ mongooseRedisCache = function(mongoose, options, callback) {
       if (!schemaOptions.redisCache && options.lean) {
         return mongoose.Query.prototype._execFind.apply(self, arguments);
       }
-      key = JSON.stringify(query) + JSON.stringify(options) + JSON.stringify(fields);
-      cb = function(err, result) {
+      //key = JSON.stringify(query) + JSON.stringify(options) + JSON.stringify(fields);
+      key = JSON.stringify(fields);
+      //console.log('query', query);
+      var start = new Date().getTime();
+
+      client.get(key, function(err, result) {
         var docs;
         if (err) {
           return callback(err);
@@ -80,18 +84,23 @@ mongooseRedisCache = function(mongoose, options, callback) {
             if (err) {
               return callback(err);
             }
+            console.log('---');
+            console.log('Mongo before JSON stringify', new Date().getTime()-start);
             str = JSON.stringify(docs);
+            console.log('Mongo after JSON stringify', new Date().getTime()-start);
             client.set(key, str);
             client.expire(key, expires);
             return callback(null, docs);
           });
         } else {
           //console.log('Redis result found. Returning from cache.');
+          console.log('---');
+          console.log('Redis before parse JSON ', new Date().getTime()-start);
           docs = JSON.parse(result);
+          console.log('Redis after parse JSON ', new Date().getTime()-start);
           return callback(null, docs);
         }
-      };
-      client.get(key, cb);
+      });
       return this;
     };
   };
