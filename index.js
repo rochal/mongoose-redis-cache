@@ -67,8 +67,9 @@ mongooseRedisCache = function(mongoose, options, callback) {
       if (!schemaOptions.redisCache && options.lean) {
         return mongoose.Query.prototype._execFind.apply(self, arguments);
       }
-      key = JSON.stringify(query) + JSON.stringify(options) + JSON.stringify(fields);
-      //console.log('query', query);
+
+      key = JSON.stringify(query) + JSON.stringify(options) + JSON.stringify(fields) + JSON.stringify(this.options.populate);
+
       var start = new Date().getTime();
 
       client.get(key, function(err, result) {
